@@ -1,106 +1,38 @@
-def main():
-    print("Hello from linear-programming!")
-
-# A small linear program (product-mix) in Pyomo.
-# Maximize profit from two products subject to resource limits.
-
-from pyomo.environ import (
-    ConcreteModel, Var, NonNegativeReals, Objective, Constraint, maximize,
-    SolverFactory, value
-)
-
-
-def create_model(data):
-    """
-    data = {
-        "profit": {"A": 40, "B": 30},
-        "hours":  {"A": 2,  "B": 1},    # machine-hours per unit
-        "labor":  {"A": 1,  "B": 1},    # labor-hours per unit
-        "limits": {"hours": 100, "labor": 80, "B_max": 40}
-    }
-    """
-    m = ConcreteModel()
-
-    prods = list(data["profit"].keys())
-
-    # Decision variables: number of units to produce (continuous, >= 0)
-    m.x = Var(prods, domain=NonNegativeReals)
-
-    # Objective: maximize total profit
-    m.obj = Objective(
-        expr=sum(data["profit"][p] * m.x[p] for p in prods),
-        sense=maximize
-    )
-
-    # Constraints
-    m.machine_hours = Constraint(
-        expr=sum(data["hours"][p] * m.x[p] for p in prods) <= data["limits"]["hours"]
-    )
-    m.labor_hours = Constraint(
-        expr=sum(data["labor"][p] * m.x[p] for p in prods) <= data["limits"]["labor"]
-    )
-    m.max_B = Constraint(expr=m.x["B"] <= data["limits"]["B_max"])
-
-    return m
-
-
-def choose_solver():
-    """
-    Try a few common LP solvers. You only need one installed.
-    Priority: GLPK -> CBC
-    """
-    for cand in ["glpk", "cbc"]:
-        try:
-            solver = SolverFactory(cand)
-            if solver and solver.available(exception_flag=False):
-                return cand
-        except Exception:
-            pass
-    return None
-
+import argparse
+from data import DEFAULT_DATA
+from model import create_model
+from solver import solve
+from report import print_solution, print_usage
+from plot import plot_feasible_region_and_optimum
 
 def main():
-    # Problem data (tweak these to explore)
+    p = argparse.ArgumentParser(description="Product-mix LP (solve + optional plot).")
+    p.add_argument("--hours", type=float, default=DEFAULT_DATA["limits"]["hours"], help="Machine-hours limit")
+    p.add_argument("--labor", type=float, default=DEFAULT_DATA["limits"]["labor"], help="Labor-hours limit")
+    p.add_argument("--bmax",  type=float, default=DEFAULT_DATA["limits"]["B_max"],  help="Upper bound for product B")
+    p.add_argument("--plot", action="store_true", help="Show 2D plot of constraints and feasible region")
+    args = p.parse_args()
+
     data = {
-        "profit": {"A": 40, "B": 30},
-        "hours":  {"A": 2,  "B": 1},
-        "labor":  {"A": 1,  "B": 1},
-        "limits": {"hours": 100, "labor": 80, "B_max": 40}
+        "profit": DEFAULT_DATA["profit"],
+        "hours":  DEFAULT_DATA["hours"],
+        "labor":  DEFAULT_DATA["labor"],
+        "limits": {"hours": args.hours, "labor": args.labor, "B_max": args.bmax},
     }
 
     model = create_model(data)
-
-    solver_name = choose_solver()
-    if solver_name is None:
-        raise RuntimeError(
-            "No LP solver found. Install GLPK or CBC (see README.md)."
-        )
-
-    results = SolverFactory(solver_name).solve(model, tee=False)
-    status = str(results.solver.status)
-    termination = str(results.solver.termination_condition)
+    prod_levels, total_profit, solver_name, status = solve(model)
 
     print(f"Solver: {solver_name}")
-    print(f"Status: {status} | Termination: {termination}\n")
+    print(f"Status: {status}\n")
+    print_solution(prod_levels, total_profit)
+    print_usage(data, prod_levels)
 
-    # Report solution
-    prod_levels = {p: value(model.x[p]) for p in model.x}
-    total_profit = value(model.obj)
-
-    print("Optimal production plan:")
-    for p, q in prod_levels.items():
-        print(f"  {p}: {q:.2f} units")
-
-    print(f"\nTotal profit: {total_profit:.2f}")
-
-    # Constraint usage (left-hand side vs. limit)
-    mh_used = sum(data["hours"][p] * prod_levels[p] for p in prod_levels)
-    lb_used = sum(data["labor"][p] * prod_levels[p] for p in prod_levels)
-
-    print("\nResource usage at optimum:")
-    print(f"  Machine hours: {mh_used:.2f} / {data['limits']['hours']}")
-    print(f"  Labor hours:   {lb_used:.2f} / {data['limits']['labor']}")
-    print(f"  B upper bound: {prod_levels['B']:.2f} / {data['limits']['B_max']}")
+    if args.plot:
+        # Pass optimal point to the plotter
+        x_opt = prod_levels.get("A", 0.0)
+        y_opt = prod_levels.get("B", 0.0)
+        plot_feasible_region_and_optimum(data, (x_opt, y_opt), title="Product-Mix LP")
 
 if __name__ == "__main__":
     main()
