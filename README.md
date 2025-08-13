@@ -13,14 +13,11 @@ This is a minimal, self-contained **linear program (LP)** using [Pyomo](https://
 
 $$
 \begin{aligned}
-\max\; & z = 40x_A + 30x_B \\[0.5em]
-\text{s.t.}\; &
-\begin{aligned}
-  2x_A + x_B &\le 100 && (\text{machine hours})\\
-  x_A + x_B &\le 80  && (\text{labor hours})\\
-  x_B       &\le 40  && (\text{demand cap})\\
-  x_A,\, x_B &\ge 0
-\end{aligned}
+\text{maximize}\quad   & 40x_A + 30x_B \\
+\text{subject to}\quad & 2x_A + x_B \le 100 \\
+                       & x_A + x_B \le 80 \\
+                       & x_B \le 40 \\
+                       & x_A,\; x_B \ge 0
 \end{aligned}
 $$
 
