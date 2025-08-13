@@ -12,15 +12,15 @@ This is a minimal, self-contained **linear program (LP)** using [Pyomo](https://
 ## Problem formulation
 
 **Decision variables**
-- `x_A, x_B ≥ 0` — production quantities (continuous)
+- \(x_A,\, x_B \ge 0\) — production quantities (continuous)
 
 **Objective**
-- Maximize `40*x_A + 30*x_B`
+- Maximize \(40\,x_A + 30\,x_B\)
 
 **Constraints**
-- Machine hours: `2*x_A + 1*x_B ≤ 100`
-- Labor hours: `1*x_A + 1*x_B ≤ 80`
-- Demand cap for B: `x_B ≤ 40`
+- Machine hours: \(2\,x_A + x_B \le 100\)
+- Labor hours: \(x_A + x_B \le 80\)
+- Demand cap for B: \(x_B \le 40\)
 
 ---
 
