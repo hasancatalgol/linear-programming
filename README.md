@@ -13,11 +13,16 @@ This is a minimal, self-contained **linear program (LP)** using [Pyomo](https://
 
 $$
 \begin{aligned}
-\text{Maximize:}\quad   & 40x_A + 30x_B \\
-\text{Subject to}\quad & 2x_A + x_B \le 100 \\
-                       & x_A + x_B \le 80 \\
-                       & x_B \le 40 \\
-                       & x_A,\; x_B \ge 0
+\text{Maximize:}\quad & 40x_A + 30x_B \\
+\text{Subject to:}\quad &
+\left\{
+\begin{array}{l}
+  2x_A + x_B \le 100 \\
+  x_A + x_B \le 80 \\
+  x_B \le 40 \\
+  x_A,\; x_B \ge 0
+\end{array}
+\right.
 \end{aligned}
 $$
 
