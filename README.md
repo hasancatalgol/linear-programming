@@ -24,7 +24,15 @@ x_A,\, x_B \ge 0.
 \end{aligned}
 $$
 
+---
 
+## Method (how it’s solved)
+
+This model is a plain **linear program (LP)**. When you run it with GLPK or CBC:
+
+- **Algorithm:** By default they use a **(revised) simplex** method for LPs  
+  – GLPK runs simplex; CBC delegates the LP to **Clp**, which also uses primal/dual simplex.  
+- **Idea in one line:** simplex walks along the **corners (vertices)** of the feasible polygon/polytope, moving to a better adjacent corner until **no improving move** exists (reduced costs ≥ 0), which certifies optimality.
 
 ---
 
