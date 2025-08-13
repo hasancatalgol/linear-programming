@@ -13,7 +13,7 @@ This is a minimal, self-contained **linear program (LP)** using [Pyomo](https://
 
 $$
 \begin{aligned}
-\text{Maximize}\quad & z = 40x_A + 30x_B \\[0.4em]
+\text{Maximize}\quad & z = 40x_A + 30x_B \\
 \text{Subject to}\quad &
 \begin{cases}
 2x_A + x_B \le 100,\\
