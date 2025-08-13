@@ -12,18 +12,18 @@ This is a minimal, self-contained **linear program (LP)** using [Pyomo](https://
 ## Problem formulation
 
 $$
-\begin{aligned}
-\textbf{Maximize}\quad & z = 40x_A + 30x_B \\[0.4em]
-\textbf{Subject to}\quad &
+\begin{array}{ll}
+\textbf{Maximize} & z = 40x_A + 30x_B \\[0.4em]
+\textbf{Subject to} &
 \left\{
-\begin{aligned}
-  2x_A + x_B &\le 100 \\
-  x_A + x_B &\le 80 \\
-  x_B       &\le 40 \\
-  x_A,\; x_B &\ge 0
-\end{aligned}
+\begin{array}{l}
+  2x_A + x_B \le 100 \\
+  x_A + x_B \le 80 \\
+  x_B \le 40 \\
+  x_A,\; x_B \ge 0
+\end{array}
 \right.
-\end{aligned}
+\end{array}
 $$
 
 
